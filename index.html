@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SmartBudget Pro</title>
+<meta name="theme-color" content="#4ade80">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SmartBudget">
+<meta name="description" content="Personal Finance Tracker - Track income, expenses & savings">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
 <style>
 [data-theme="dark"]{--bg:#07090f;--bg2:#0d1117;--bg3:#161b25;--card:rgba(255,255,255,.03);--bdr:rgba(255,255,255,.07);--text:#e8edf8;--muted:#6b7a99;--dim:#252e40;--accent:#4ade80;--red:#f87171;--blue:#60a5fa;--gold:#fbbf24;--purple:#a78bfa;--orange:#fb923c;--shadow:0 16px 48px rgba(0,0,0,.5);--inp:rgba(255,255,255,.05);--glow:rgba(74,222,128,.12);}
@@ -158,6 +166,7 @@ tr:last-child td{border-bottom:none;}
     <button class="sbtn" onclick="saveMonth()">💾 Save</button>
     <button class="ibtn" onclick="goTab('settings')">⚙️</button>
     <button class="ibtn" onclick="toggleTheme()" id="thbtn">🌙</button>
+    <button class="sbtn" id="install-btn" onclick="installApp()" style="display:none;background:#60a5fa;color:#000;align-items:center;gap:4px;">📲 Install App</button>
   </div>
 </div>
 
@@ -394,6 +403,32 @@ function clrMonth(){if(!confirm(`Clear ${MN[curM]} ${curY}?`))return;allData[mk(
 function clrAll(){if(!confirm('⛔ Delete ALL data?'))return;allData={};persist();loadCur();buildAll();dash();toast('⛔ Cleared','info');}
 
 window.addEventListener('DOMContentLoaded', init);
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'flex';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('install-btn').style.display = 'none';
+    });
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-btn').style.display = 'none';
+  toast('App installed! 🎉');
+});
 </script>
 </body>
 </html>
